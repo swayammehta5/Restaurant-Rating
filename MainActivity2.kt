@@ -17,7 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-
+// ✅ DATA CLASS
+data class Food(
+    val name: String,
+    val price: Int,
+    val emoji: String
+)
 class MainActivity2 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +32,9 @@ class MainActivity2 : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun Restaurant() {
-
     var showSplash by remember { mutableStateOf(true) }
-
     if (showSplash) {
         SplashScreenss {
             showSplash = false
@@ -41,35 +43,36 @@ fun Restaurant() {
         Display()
     }
 }
-
 @Composable
 fun SplashScreenss(onTimeout: () -> Unit) {
-
     LaunchedEffect(Unit) {
         delay(3000)
         onTimeout()
     }
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Restaurant Logo")
+        Text("🍽️ Restaurant App", style = MaterialTheme.typography.headlineMedium)
     }
 }
-
 @Composable
 fun Display() {
-
-    val food = listOf("Apple", "Banana", "Mango")
-
+    val foodList = listOf(
+        Food("Apple", 120, "🍎"),
+        Food("Banana", 60, "🍌"),
+        Food("Mango", 150, "🥭"),
+        Food("Orange", 80, "🍊"),
+        Food("Grapes", 90, "🍇"),
+        Food("Pineapple", 110, "🍍"),
+        Food("Strawberry", 200, "🍓"),
+        Food("Watermelon", 70, "🍉")
+    )
     var loading by remember { mutableStateOf(true) }
-
     LaunchedEffect(Unit) {
         delay(2000)
         loading = false
     }
-
     if (loading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -78,55 +81,52 @@ fun Display() {
             CircularProgressIndicator()
         }
     } else {
-
         LazyColumn(
             modifier = Modifier.padding(10.dp)
         ) {
-            items(food) { item ->
+            items(foodList) { item ->
                 FoodItems(item)
             }
         }
     }
 }
-
 @Composable
-fun FoodItems(item: String) {
-
+fun FoodItems(item: Food) {
     var rating by remember { mutableStateOf(0) }
     val context = LocalContext.current
-
     Card(
         modifier = Modifier
             .padding(10.dp)
             .fillMaxWidth()
     ) {
-
         Row(modifier = Modifier.padding(10.dp)) {
-
             Text(
-                text = "🍔",
+                text = item.emoji,
                 modifier = Modifier
                     .size(80.dp)
                     .padding(8.dp)
             )
-
             Column(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .weight(1f)
+                modifier = Modifier.padding(10.dp)
             ) {
-
-                Text(text = item)
-
-                Text(text = "Price: ₹100")
-
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Price: ₹${item.price}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-
                 CustomRatingBar1(
                     rating = rating,
                     onRatingChanged = {
                         rating = it
-                        Toast.makeText(context, "Rated $it", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "${item.name} Rated $it ⭐",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
             }
@@ -139,7 +139,6 @@ fun CustomRatingBar1(
     maxRating: Int = 5,
     onRatingChanged: (Int) -> Unit
 ) {
-
     Row {
         for (i in 1..maxRating) {
             Text(
